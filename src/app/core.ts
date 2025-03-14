@@ -10,6 +10,7 @@ app.get("/", ctx => {
 })
 
 app.onError((err, ctx) => {
+  console.error(err)
   const { code, text } = status.internalServerError
   const stack = env.NODE_ENV === "production" ? undefined : err.stack
   return ctx.json({ ok: false, error: text, stack }, code)
