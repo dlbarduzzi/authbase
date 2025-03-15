@@ -6,7 +6,7 @@ const _statusText = [
   "Bad Request",
   "Unauthorized",
   "Not Found",
-  "Internal Server Error",
+  "Server Error",
 ] as const
 
 const _statusName = [
@@ -15,7 +15,7 @@ const _statusName = [
   "badRequest",
   "unauthorized",
   "notFound",
-  "internalServerError",
+  "serverError",
 ] as const
 
 type StatusName = (typeof _statusName)[number]
@@ -43,8 +43,8 @@ export const status: Record<StatusName, { code: StatusCode; text: StatusText }> 
     code: 404,
     text: "Not Found",
   },
-  internalServerError: {
+  serverError: {
     code: 500,
-    text: "Internal Server Error",
+    text: "Server Error",
   },
 }
