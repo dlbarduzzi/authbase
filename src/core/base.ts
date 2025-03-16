@@ -1,4 +1,4 @@
-import type { OpenAPI, Variables } from "./types"
+import type { AppBindings, AppOpenAPIHono } from "./types"
 
 import { requestId } from "hono/request-id"
 import { OpenAPIHono } from "@hono/zod-openapi"
@@ -10,7 +10,7 @@ import { status } from "@/app/status"
 import packageJSON from "../../package.json"
 
 export function createApp() {
-  return new OpenAPIHono<{ Variables: Variables }>({
+  return new OpenAPIHono<AppBindings>({
     strict: false,
     defaultHook: (result, c) => {
       if (!result.success) {
@@ -46,7 +46,7 @@ export function bootstrap() {
   return app
 }
 
-export function bootstrapOpenAPI(app: OpenAPI) {
+export function bootstrapOpenAPI(app: AppOpenAPIHono) {
   app.doc("/doc", {
     openapi: "3.0.0",
     info: {

@@ -1,8 +1,9 @@
-import { router } from "@/routers/base"
+import { auth } from "@/routers/auth/routes"
+import { main } from "@/routers/main/routes"
 import { bootstrap, bootstrapOpenAPI } from "./base"
 
 const app = bootstrap()
-const routes = [router]
+const routes = [main, auth]
 
 bootstrapOpenAPI(app)
 

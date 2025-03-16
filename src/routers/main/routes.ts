@@ -3,7 +3,7 @@ import { createRoute, z } from "@hono/zod-openapi"
 import { status } from "@/app/status"
 import { createApp } from "@/core/base"
 
-export const router = createApp().openapi(
+const router = createApp().openapi(
   createRoute({
     path: "/",
     method: "get",
@@ -23,3 +23,5 @@ export const router = createApp().openapi(
     return ctx.json({ message: "AuthBase API" }, status.ok.code)
   }
 )
+
+export const main = router
