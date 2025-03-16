@@ -2,6 +2,7 @@ import type { OpenAPI, Variables } from "./types"
 
 import { requestId } from "hono/request-id"
 import { OpenAPIHono } from "@hono/zod-openapi"
+import { apiReference } from "@scalar/hono-api-reference"
 
 import { logger } from "@/app/logger"
 import { status } from "@/app/status"
@@ -9,7 +10,21 @@ import { status } from "@/app/status"
 import packageJSON from "../../package.json"
 
 export function createApp() {
-  return new OpenAPIHono<{ Variables: Variables }>({ strict: false })
+  return new OpenAPIHono<{ Variables: Variables }>({
+    strict: false,
+    defaultHook: (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            ok: false,
+            error: status.unprocessableEntity.text,
+            details: result.error,
+          },
+          status.unprocessableEntity.code
+        )
+      }
+    },
+  })
 }
 
 export function bootstrap() {
@@ -39,4 +54,13 @@ export function bootstrapOpenAPI(app: OpenAPI) {
       title: "AuthBase API",
     },
   })
+  app.get(
+    "/reference",
+    apiReference({
+      url: "/doc",
+      theme: "kepler",
+      layout: "classic",
+      darkMode: true,
+    })
+  )
 }

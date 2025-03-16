@@ -1,13 +1,14 @@
 import { createRoute, z } from "@hono/zod-openapi"
+
+import { status } from "@/app/status"
 import { createApp } from "@/core/base"
 
 export const router = createApp().openapi(
   createRoute({
     path: "/",
     method: "get",
-    request: undefined,
     responses: {
-      200: {
+      [status.ok.code]: {
         content: {
           "application/json": {
             schema: z.object({ message: z.string() }),
@@ -16,8 +17,9 @@ export const router = createApp().openapi(
         description: "AuthBase API Index",
       },
     },
+    tags: ["Index"],
   }),
   ctx => {
-    return ctx.json({ message: "Welcome to AuthBase!" }, 200)
+    return ctx.json({ message: "AuthBase API" }, status.ok.code)
   }
 )

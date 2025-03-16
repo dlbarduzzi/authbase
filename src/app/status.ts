@@ -1,4 +1,4 @@
-const _statusCode = [200, 201, 400, 401, 404, 500] as const
+const _statusCode = [200, 201, 400, 401, 404, 422, 500] as const
 
 const _statusText = [
   "Ok",
@@ -6,6 +6,7 @@ const _statusText = [
   "Bad Request",
   "Unauthorized",
   "Not Found",
+  "Unprocessable Entity",
   "Server Error",
 ] as const
 
@@ -15,6 +16,7 @@ const _statusName = [
   "badRequest",
   "unauthorized",
   "notFound",
+  "unprocessableEntity",
   "serverError",
 ] as const
 
@@ -42,6 +44,10 @@ export const status: Record<StatusName, { code: StatusCode; text: StatusText }> 
   notFound: {
     code: 404,
     text: "Not Found",
+  },
+  unprocessableEntity: {
+    code: 422,
+    text: "Unprocessable Entity",
   },
   serverError: {
     code: 500,
