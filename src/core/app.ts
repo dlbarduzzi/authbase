@@ -1,4 +1,4 @@
-import { auth } from "@/routers/auth/routes"
+import { auth } from "@/routers/auth/main"
 import { main } from "@/routers/main/routes"
 import { bootstrap, bootstrapOpenAPI } from "./base"
 
