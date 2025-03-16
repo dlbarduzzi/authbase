@@ -1,11 +1,13 @@
 import type { AppBindings, AppOpenAPIHono } from "./types"
 
+import { ZodError } from "zod"
 import { requestId } from "hono/request-id"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { apiReference } from "@scalar/hono-api-reference"
 
-import { logger } from "@/app/logger"
-import { status } from "@/app/status"
+import { env } from "@/env"
+import { logger } from "./logger"
+import { StatusUnprocessableEntity } from "./status"
 
 import packageJSON from "../../package.json"
 
@@ -17,36 +19,17 @@ export function createApp() {
         return c.json(
           {
             ok: false,
-            error: status.unprocessableEntity.text,
-            details: result.error,
+            error: StatusUnprocessableEntity,
+            details: result.error instanceof ZodError ? result.error : undefined,
           },
-          status.unprocessableEntity.code
+          422
         )
       }
     },
   })
 }
 
-export function bootstrap() {
-  const app = createApp()
-
-  app.use(requestId())
-  app.use(logger())
-
-  app.onError((_, ctx) => {
-    const { code, text } = status.serverError
-    return ctx.text(`${code} ${text}`, code)
-  })
-
-  app.notFound(ctx => {
-    const { code, text } = status.notFound
-    return ctx.text(`${code} ${text}`, code)
-  })
-
-  return app
-}
-
-export function bootstrapOpenAPI(app: AppOpenAPIHono) {
+export function documentApp(app: AppOpenAPIHono) {
   app.doc("/doc", {
     openapi: "3.0.0",
     info: {
@@ -63,4 +46,21 @@ export function bootstrapOpenAPI(app: AppOpenAPIHono) {
       darkMode: true,
     })
   )
+}
+
+export function bootstrapApp() {
+  const app = createApp()
+
+  app.use(requestId())
+  app.use(logger(env.LOG_LEVEL, env.NODE_ENV === "production"))
+
+  app.onError((_, ctx) => {
+    return ctx.text("500 Server Error", 500)
+  })
+
+  app.notFound(ctx => {
+    return ctx.text("400 Not Found", 400)
+  })
+
+  return app
 }

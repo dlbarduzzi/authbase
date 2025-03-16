@@ -1,0 +1,7 @@
+export const StatusOK = "Ok"
+export const StatusCreated = "Created"
+export const StatusBadRequest = "Bad Request"
+export const StatusUnauthorized = "Unauthorized"
+export const StatusNotFound = "Not Found"
+export const StatusUnprocessableEntity = "Unprocessable Entity"
+export const StatusServerError = "Server Error"

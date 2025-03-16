@@ -1,12 +1,11 @@
-import { auth } from "@/routers/auth/main"
-import { main } from "@/routers/main/routes"
-import { bootstrap, bootstrapOpenAPI } from "./base"
+import { users } from "@/routes/users/apis"
+import { documentApp, bootstrapApp } from "@/core/base"
 
-const app = bootstrap()
-const routes = [main, auth]
+const app = bootstrapApp()
+documentApp(app)
 
-bootstrapOpenAPI(app)
-
+const routes = [users] as const
 routes.forEach(route => app.route("/", route))
 
+export type AppType = (typeof routes)[number]
 export { app }
