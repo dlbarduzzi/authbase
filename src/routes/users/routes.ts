@@ -1,3 +1,4 @@
+import { userSchema } from "@/db/schemas/users"
 import { createRoute, z } from "@hono/zod-openapi"
 
 const tags = ["Users"]
@@ -29,10 +30,7 @@ export const signIn = createRoute({
       content: {
         "application/json": {
           schema: z.object({
-            user: z.object({
-              id: z.string(),
-              email: z.string(),
-            }),
+            user: userSchema,
             message: z.string(),
           }),
         },
@@ -51,10 +49,7 @@ export const profile = createRoute({
       content: {
         "application/json": {
           schema: z.object({
-            user: z.object({
-              id: z.string(),
-              email: z.string(),
-            }),
+            user: userSchema,
           }),
         },
       },
