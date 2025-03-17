@@ -12,8 +12,13 @@ export const signIn = createRoute({
       content: {
         "application/json": {
           schema: z.object({
-            email: z.string().min(1, "Email is required").email("Not a valid email"),
-            password: z.string().min(1, "Password is required"),
+            email: z
+              .string({ message: "Email is required" })
+              .min(1, "Email is required")
+              .email("Not a valid email"),
+            password: z
+              .string({ message: "Password is required" })
+              .min(1, "Password is required"),
           }),
         },
       },
@@ -24,7 +29,11 @@ export const signIn = createRoute({
       content: {
         "application/json": {
           schema: z.object({
-            token: z.string(),
+            user: z.object({
+              id: z.string(),
+              email: z.string(),
+            }),
+            message: z.string(),
           }),
         },
       },
@@ -33,95 +42,26 @@ export const signIn = createRoute({
   },
 })
 
-const PASSWORD_MIN_CHARS = 8
-const PASSWORD_MAX_CHARS = 72
-
-function hasNumber(value: string) {
-  return /[0-9]/.test(value)
-}
-
-function hasSpecialChar(value: string) {
-  return /[!?@#$&^*_\-=+]/.test(value)
-}
-
-function hasLowercaseChar(value: string) {
-  return /[a-z]/.test(value)
-}
-
-function hasUppercaseChar(value: string) {
-  return /[A-Z]/.test(value)
-}
-
-export const signUp = createRoute({
-  path: `${basePath}/sign-up`,
+export const profile = createRoute({
+  path: `${basePath}/profile`,
   tags,
-  method: "post",
-  request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: z
-            .object({
-              email: z.string().min(1, "Email is required").email("Not a valid email"),
-              password: z
-                .string()
-                .min(1, "Password is required")
-                .min(PASSWORD_MIN_CHARS, {
-                  // eslint-disable-next-line max-len
-                  message: `Password must be at least ${PASSWORD_MIN_CHARS} characters long`,
-                })
-                .max(PASSWORD_MAX_CHARS, {
-                  // eslint-disable-next-line max-len
-                  message: `Password must be at most ${PASSWORD_MAX_CHARS} characters long`,
-                }),
-            })
-            .superRefine((input, ctx) => {
-              if (!hasNumber(input.password)) {
-                ctx.addIssue({
-                  code: z.ZodIssueCode.custom,
-                  path: ["password"],
-                  message: "Password must contain at least 1 number",
-                })
-              }
-              if (!hasLowercaseChar(input.password)) {
-                ctx.addIssue({
-                  code: z.ZodIssueCode.custom,
-                  path: ["password"],
-                  message: "Password must contain at least 1 lowercase character",
-                })
-              }
-              if (!hasUppercaseChar(input.password)) {
-                ctx.addIssue({
-                  code: z.ZodIssueCode.custom,
-                  path: ["password"],
-                  message: "Password must contain at least 1 uppercase character",
-                })
-              }
-              if (!hasSpecialChar(input.password)) {
-                ctx.addIssue({
-                  code: z.ZodIssueCode.custom,
-                  path: ["password"],
-                  message: "Password must contain at least 1 special character",
-                })
-              }
-            }),
-        },
-      },
-    },
-  },
+  method: "get",
   responses: {
     200: {
       content: {
         "application/json": {
           schema: z.object({
-            token: z.string(),
+            user: z.object({
+              id: z.string(),
+              email: z.string(),
+            }),
           }),
         },
       },
-      description: "Create a new user",
+      description: "Get user profile",
     },
   },
 })
 
 export type SignIn = typeof signIn
-export type SignUp = typeof signUp
+export type Profile = typeof profile

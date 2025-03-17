@@ -5,4 +5,4 @@ import * as handlers from "./handlers"
 
 export const users = createApp()
   .openapi(routes.signIn, handlers.signIn)
-  .openapi(routes.signUp, handlers.signUp)
+  .openapi(routes.profile, handlers.profile)

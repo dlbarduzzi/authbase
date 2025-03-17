@@ -4,10 +4,17 @@ import { ZodError } from "zod"
 import { requestId } from "hono/request-id"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { apiReference } from "@scalar/hono-api-reference"
+import { HTTPException } from "hono/http-exception"
 
 import { env } from "@/env"
 import { logger } from "./logger"
-import { StatusUnprocessableEntity } from "./status"
+
+import {
+  StatusBadRequest,
+  StatusNotFound,
+  StatusUnprocessableEntity,
+  StatusServerError,
+} from "./status"
 
 import packageJSON from "../../package.json"
 
@@ -54,12 +61,35 @@ export function bootstrapApp() {
   app.use(requestId())
   app.use(logger(env.LOG_LEVEL, env.NODE_ENV === "production"))
 
-  app.onError((_, ctx) => {
-    return ctx.text("500 Server Error", 500)
+  app.onError((err, ctx) => {
+    if (
+      err instanceof HTTPException &&
+      err.message === "Malformed JSON in request body"
+    ) {
+      return ctx.json({ ok: false, error: StatusBadRequest, message: err.message }, 400)
+    }
+
+    ctx.var.logger.error(err)
+
+    return ctx.json(
+      {
+        ok: false,
+        error: StatusServerError,
+        message: "Something went wrong while processing your request",
+      },
+      500
+    )
   })
 
   app.notFound(ctx => {
-    return ctx.text("400 Not Found", 400)
+    return ctx.json(
+      {
+        ok: false,
+        error: StatusNotFound,
+        message: "The resource you are looking for does not exist",
+      },
+      404
+    )
   })
 
   return app
