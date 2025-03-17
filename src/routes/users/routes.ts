@@ -1,5 +1,9 @@
-import { userSchema } from "@/db/schemas/users"
 import { createRoute, z } from "@hono/zod-openapi"
+
+import { userSchema } from "@/db/schemas/users"
+import { signInSchema } from "./schemas"
+import { createErrorSchema } from "@/lib/zod"
+import { StatusUnauthorized, StatusUnprocessableEntity } from "@/core/status"
 
 const tags = ["Users"]
 const basePath = "/api/v1/users"
@@ -12,17 +16,10 @@ export const signIn = createRoute({
     body: {
       content: {
         "application/json": {
-          schema: z.object({
-            email: z
-              .string({ message: "Email is required" })
-              .min(1, "Email is required")
-              .email("Not a valid email"),
-            password: z
-              .string({ message: "Password is required" })
-              .min(1, "Password is required"),
-          }),
+          schema: signInSchema,
         },
       },
+      required: true,
     },
   },
   responses: {
@@ -30,12 +27,37 @@ export const signIn = createRoute({
       content: {
         "application/json": {
           schema: z.object({
+            ok: z.literal(true),
             user: userSchema,
             message: z.string(),
           }),
         },
       },
-      description: "Authenticate user",
+      description: "The authenticated user",
+    },
+    401: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            ok: z.literal(false),
+            error: z.literal(StatusUnauthorized),
+            details: z.string(),
+          }),
+        },
+      },
+      description: "The user authentication error",
+    },
+    422: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            ok: z.literal(false),
+            error: z.literal(StatusUnprocessableEntity),
+            details: createErrorSchema(signInSchema),
+          }),
+        },
+      },
+      description: "The user payload validation error",
     },
   },
 })

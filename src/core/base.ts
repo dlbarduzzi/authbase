@@ -21,38 +21,19 @@ import packageJSON from "../../package.json"
 export function createApp() {
   return new OpenAPIHono<AppBindings>({
     strict: false,
-    defaultHook: (result, c) => {
+    defaultHook: (result, ctx) => {
       if (!result.success) {
-        return c.json(
+        return ctx.json(
           {
             ok: false,
             error: StatusUnprocessableEntity,
-            details: result.error instanceof ZodError ? result.error : undefined,
+            details: result.error instanceof ZodError ? result.error.issues : undefined,
           },
           422
         )
       }
     },
   })
-}
-
-export function documentApp(app: AppOpenAPIHono) {
-  app.doc("/doc", {
-    openapi: "3.0.0",
-    info: {
-      version: packageJSON.version,
-      title: "AuthBase API",
-    },
-  })
-  app.get(
-    "/reference",
-    apiReference({
-      url: "/doc",
-      theme: "kepler",
-      layout: "classic",
-      darkMode: true,
-    })
-  )
 }
 
 export function bootstrapApp() {
@@ -93,4 +74,23 @@ export function bootstrapApp() {
   })
 
   return app
+}
+
+export function documentApp(app: AppOpenAPIHono) {
+  app.doc("/doc", {
+    openapi: "3.0.0",
+    info: {
+      version: packageJSON.version,
+      title: "AuthBase API",
+    },
+  })
+  app.get(
+    "/reference",
+    apiReference({
+      url: "/doc",
+      theme: "kepler",
+      layout: "classic",
+      darkMode: true,
+    })
+  )
 }
