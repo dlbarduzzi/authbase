@@ -6,9 +6,6 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 import { apiReference } from "@scalar/hono-api-reference"
 import { HTTPException } from "hono/http-exception"
 
-import { env } from "@/env"
-import { logger } from "./logger"
-
 import {
   StatusBadRequest,
   StatusNotFound,
@@ -16,6 +13,7 @@ import {
   StatusServerError,
 } from "./status"
 
+import { logger } from "./logger"
 import packageJSON from "../../package.json"
 
 export function createApp() {
@@ -40,7 +38,7 @@ export function bootstrapApp() {
   const app = createApp()
 
   app.use(requestId())
-  app.use(logger(env.LOG_LEVEL, env.NODE_ENV === "production"))
+  app.use(logger())
 
   app.onError((err, ctx) => {
     if (

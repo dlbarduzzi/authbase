@@ -4,9 +4,11 @@ import type { AppRouteHandler } from "@/core/types"
 import { eq } from "drizzle-orm"
 
 import { db } from "@/db/conn"
+import { env } from "@/env"
 import { users } from "@/db/schemas/users"
 import { lowercase } from "@/lib/utils"
 import { signInSchema } from "./schemas"
+import { setCookieHeader, createSetCookie } from "@/tools/cookies/main"
 import { StatusUnauthorized, StatusUnprocessableEntity } from "@/core/status"
 
 export const signIn: AppRouteHandler<SignIn> = async ctx => {
@@ -37,6 +39,22 @@ export const signIn: AppRouteHandler<SignIn> = async ctx => {
       401
     )
   }
+
+  const cookie = createSetCookie("authbase.session_token", {
+    value: crypto.randomUUID(),
+    path: "/",
+    secure: env.NODE_ENV === "production",
+    expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+    httponly: true,
+    samesite: "lax",
+  })
+
+  if (cookie !== "invalid") {
+    ctx.res.headers.append("Set-Cookie", cookie)
+  }
+
+  setCookieHeader(ctx.req.raw.headers, ctx.res)
+
   return ctx.json({ ok: true, user, message: "User authenticated successfully" }, 200)
 }
 
