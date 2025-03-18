@@ -29,4 +29,4 @@ lerna-debug.log*
 
 # CUSTOM
 .local/
-docket-data/
+docker-data/
